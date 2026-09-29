@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tickd: Simple Tasks, Calendar &amp; Daily Goals</title>
+<link rel="canonical" href="https://crypticot.github.io/tickd/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2314161F'/%3E%3Cpath d='M7 12.5l3.5 3.5L17 8.5' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tickd">
+<meta name="description" content="Tickd is a simple task manager with a calendar, tags and daily goals, right in your browser. Everything is saved on your device and nothing is uploaded anywhere else.">
+<meta name="theme-color" content="#14161F">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://crypticot.github.io/tickd/">
+<meta property="og:title" content="Tickd: Simple Tasks, Calendar & Daily Goals">
+<meta property="og:description" content="Plan tasks, browse a calendar and hit your daily goal. Private, fast and saved on your device.">
+<meta property="og:image" content="https://crypticot.github.io/tickd/tickd-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tickd: a simple task manager with a calendar and daily goals">
+<meta property="og:site_name" content="Tickd">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tickd: Simple Tasks, Calendar & Daily Goals">
+<meta name="twitter:description" content="Plan tasks, browse a calendar and hit your daily goal. Private, fast and saved on your device.">
+<meta name="twitter:image" content="https://crypticot.github.io/tickd/tickd-og.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- Theme tokens ---------- */
+  :root {
+    --ac: #14161f;
+    --on: #fff;
+    --raw: #14161f;
+    --bg: #f3f3f5;
+    --cd: #fff;
+    --tx: #111318;
+    --mu: #8a8f9a;
+    --bd: #e8e9ed;
+    --rd: #e5484d;
+    --t: color-mix(in srgb, var(--ac) 7%, transparent);
+    --cc: color-mix(in srgb, var(--raw) 20%, #0b0d12);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  :root[data-t=dark] {
+    --bg: #0a0b0e;
+    --cd: #15171c;
+    --tx: #f1f2f5;
+    --mu: #8b909c;
+    --bd: #24272f;
+    --t: color-mix(in srgb, var(--ac) 12%, transparent);
+    --cc: color-mix(in srgb, var(--raw) 25%, #0f1116);
+  }
+
+  /* ---------- Base ---------- */
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--tx);
+        font: 15.5px/1.45 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  .tk:focus-visible {
+    outline: 2px solid var(--ac);
+    outline-offset: 2px;
+  }
+
+  h1 {
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  h2 {
+    font-size: 25px;
+    letter-spacing: -.02em;
+    margin: 8px 0;
+  }
+
+  h3 {
+    font-size: 19px;
+    letter-spacing: -.01em;
+    margin: 0 0 6px;
+  }
+
+  p { margin: 4px 0; }
+  .mu { color: var(--mu); }
+
+  main {
+    padding: 24px 16px 140px;
+    max-width: 940px;
+    margin: 0 auto;
+  }
+
+  .w {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--cd);
+    border: 1px solid var(--bd);
+    border-radius: 26px;
+    padding: 20px;
+  }
+
+  .dk,
+  .hero {
+    background: var(--cc);
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .av {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--ac);
+    color: var(--on);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 20px;
+    object-fit: cover;
+    flex: none;
+  }
+
+  /* ---------- Form controls ---------- */
+  .in {
+    width: 100%;
+    border: 1px solid transparent;
+    background: var(--bg);
+    color: var(--tx);
+    border-radius: 16px;
+    padding: 14px 16px;
+    font: inherit;
+    margin: 6px 0 12px;
+  }
+
+  .in:focus {
+    outline: none;
+    border-color: var(--ac);
+  }
+
+  textarea.in { resize: vertical; }
+
+  .lc {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cnt {
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cnt.full {
+    color: var(--rd);
+    font-weight: 600;
+  }
+
+  label {
+    font-size: 13.5px;
+    color: var(--mu);
+    font-weight: 500;
+    display: block;
+  }
+
+  .bt {
+    border: 0;
+    background: var(--ac);
+    color: var(--on);
+    font-weight: 600;
+    border-radius: 18px;
+    padding: 15px 18px;
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .bt.g {
+    background: var(--t);
+    color: var(--tx);
+  }
+
+  .bt.d {
+    background: none;
+    color: var(--rd);
+  }
+
+  .bt.sm {
+    width: auto;
+    padding: 10px 18px;
+    margin: 0;
+  }
+
+  .ib {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--t);
+    color: var(--tx);
+    font-size: 17px;
+    flex: none;
+  }
+
+  .ch {
+    border: 1px solid var(--bd);
+    background: var(--cd);
+    color: var(--mu);
+    border-radius: 22px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .ch.on {
+    background: var(--ac);
+    border-color: var(--ac);
+    color: var(--on);
+  }
+
+  .sw {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--bd);
+    padding: 0;
+  }
+
+  /* ---------- Layout helpers ---------- */
+  .row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px;
+  }
+
+  .wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 6px 0 14px;
+  }
+
+  .row::-webkit-scrollbar { display: none; }
+
+  .g2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (min-width: 820px) {
+    .g2 { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* ---------- Home: stats and hero ---------- */
+  .st {
+    background: var(--cd);
+    border: 1px solid var(--bd);
+    border-radius: 24px;
+    padding: 16px 18px;
+  }
+
+  .st b {
+    font-size: 36px;
+    display: block;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+  }
+
+  .st span {
+    font-size: 14px;
+    color: var(--mu);
+  }
+
+  .hero {
+    border-radius: 28px;
+    padding: 22px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .hero small {
+    color: rgba(255, 255, 255, .6);
+    font-size: 14px;
+  }
+
+  .hero h2 {
+    margin: 2px 0;
+    color: #fff;
+  }
+
+  .hero p { color: rgba(255, 255, 255, .7); }
+
+  .ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: conic-gradient(#fff calc(var(--p) * 1%), rgba(255, 255, 255, .15) 0);
+    display: grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+  }
+
+  .ring::before {
+    content: '';
+    position: absolute;
+    inset: 9px;
+    border-radius: 50%;
+    background: var(--cc);
+  }
+
+  .ring b {
+    position: relative;
+    font-size: 22px;
+    letter-spacing: -.02em;
+  }
+
+  /* ---------- Calendar ---------- */
+  .cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+  }
+
+  .cal small {
+    color: var(--mu);
+    font-weight: 500;
+    font-size: 12.5px;
+    padding: 4px 0;
+  }
+
+  .d {
+    border: 0;
+    background: none;
+    height: 40px;
+    border-radius: 14px;
+    position: relative;
+    font-size: 15px;
+  }
+
+  .d.o { opacity: .35; }
+
+  .d.t {
+    outline: 1.5px solid currentColor;
+    outline-offset: -2px;
+  }
+
+  .d.s {
+    background: #fff;
+    color: #111;
+  }
+
+  .d.k::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .dk .ib {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+  }
+
+  .dk .ch {
+    background: transparent;
+    border-color: rgba(255, 255, 255, .2);
+    color: #cfd3dc;
+  }
+
+  .dk .ch.on {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+  }
+
+  .dk .cal small { color: #8b93a5; }
+
+  .ct {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .ct b {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .ct .row { margin: 0; }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- Task list and cards ---------- */
+  .lst {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lst.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 820px) {
+    .lst.grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .tk {
+    background: var(--cd);
+    border: 1px solid var(--bd);
+    border-radius: 26px;
+    padding: 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+
+  .tk:active { transform: scale(.99); }
+
+  .tk.dn {
+    background: var(--t);
+    border-color: transparent;
+  }
+
+  .grid .tk {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grid .cb { align-self: flex-end; }
+
+  .tb {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tmr {
+    font-size: 13px;
+    color: var(--mu);
+  }
+
+  .tt {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+    margin: 2px 0 4px;
+    word-break: break-word;
+  }
+
+  .tt.dn {
+    text-decoration: line-through;
+    opacity: .5;
+  }
+
+  .ds {
+    color: var(--mu);
+    font-size: 14px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .mt {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .mt:empty { display: none; }
+
+  .cb {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1.5px solid var(--bd);
+    background: none;
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: var(--on);
+    font-size: 17px;
+    padding: 0;
+  }
+
+  .cb.on {
+    background: var(--ac);
+    border-color: var(--ac);
+  }
+
+  .tm {
+    background: var(--ac);
+    color: var(--on);
+    border-radius: 22px;
+    padding: 6px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-block;
+  }
+
+  .tg {
+    background: var(--t);
+    border-radius: 22px;
+    padding: 4px 13px;
+    font-size: 13px;
+    color: var(--tx);
+    font-weight: 500;
+  }
+
+  .tg.hi {
+    background: var(--ac);
+    color: var(--on);
+  }
+
+  .od {
+    color: var(--rd);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 0;
+  }
+
+  .emp {
+    text-align: center;
+    color: var(--mu);
+    padding: 28px 10px;
+  }
+
+  /* ---------- Navigation ---------- */
+  #nav {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--cd) 88%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--bd);
+    border-radius: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .12);
+    z-index: 5;
+  }
+
+  .nb {
+    flex: 1;
+    border: 0;
+    background: none;
+    color: var(--mu);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 9px 2px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .nb i { display: grid; }
+  .nb svg { display: block; }
+
+  .nb.on {
+    background: var(--ac);
+    color: var(--on);
+  }
+
+  #fab {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--ac);
+    color: var(--on);
+    display: grid;
+    place-items: center;
+    flex: none;
+    margin: 0 4px;
+  }
+
+  #fab i { display: grid; }
+  #fab .lb { display: none; }
+
+  /* ---------- Sheets, overlay and toast ---------- */
+  #ov {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 8, 12, .55);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  #ov.on { display: flex; }
+
+  .sh {
+    background: var(--cd);
+    width: 100%;
+    max-width: 520px;
+    max-height: 92%;
+    overflow: auto;
+    border-radius: 32px 32px 0 0;
+    padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    animation: up .22s ease;
+  }
+
+  .sh::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--bd);
+    margin: 0 auto 14px;
+  }
+
+  @keyframes up {
+    from {
+      transform: translateY(28px);
+      opacity: 0;
+    }
+  }
+
+  .sr {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    transform: translateX(-50%);
+    background: var(--tx);
+    color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 22px;
+    font-size: 14px;
+    z-index: 20;
+    display: none;
+  }
+
+  /* ---------- Desktop layout (sidebar nav) ---------- */
+  @media (min-width: 820px) {
+    #nav {
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: auto;
+      width: 220px;
+      border-radius: 0;
+      border-width: 0 1px 0 0;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 26px 14px;
+      box-shadow: none;
+    }
+
+    .nb {
+      flex: none;
+      flex-direction: row;
+      width: 100%;
+      font-size: 15px;
+      gap: 10px;
+      padding: 13px 16px;
+    }
+
+    .nb.hp { margin-top: auto; }
+
+    #fab {
+      order: -1;
+      width: 100%;
+      height: 50px;
+      border-radius: 18px;
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    #fab .lb { display: inline; }
+
+    main {
+      margin: 0 0 0 220px;
+      max-width: none;
+      padding: 32px 40px 60px;
+    }
+
+    .w {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    #help {
+      bottom: 22px;
+      right: 22px;
+    }
+
+    #ov { align-items: center; }
+    .sh { border-radius: 32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* ---------- Search bar and icon buttons ---------- */
+  .sb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--cd);
+    border: 1.5px solid color-mix(in srgb, var(--mu) 45%, transparent);
+    border-radius: 18px;
+    padding: 0 16px;
+    color: var(--mu);
+  }
+
+  .sb:focus-within { border-color: var(--ac); }
+  .sb svg { flex: none; }
+
+  .sb input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: var(--tx);
+    font: inherit;
+    padding: 14px 0;
+    outline: none;
+  }
+
+  .ib {
+    display: grid;
+    place-items: center;
+  }
+
+  .ib svg,
+  .cb svg { display: block; }
+
+  .ch svg { vertical-align: -2px; }
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Tickd",
+  "alternateName": "Tickd: Simple Tasks, Calendar & Daily Goals",
+  "url": "https://crypticot.github.io/tickd/",
+  "description": "Tickd is a simple task manager with a calendar, tags and daily goals, right in your browser. Everything is saved on your device and nothing is uploaded anywhere else.",
+  "image": "https://crypticot.github.io/tickd/tickd-og.png",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Tasks with dates, times, tags and priorities",
+    "Month and week calendar",
+    "Daily goal tracking",
+    "Light, dark and custom accent themes",
+    "JSON backup and restore",
+    "Saved on your device, no account needed"
+  ],
+  "author": {
+    "@type": "Person",
+    "name": "Chidubem Ojukwu",
+    "url": "https://crypticot.github.io/cotworks-portfolio/"
+  }
+}
+</script>
+</head>
+
+<body>
+
+<main id="main"></main>
+
+<nav id="nav">
+  <button class="nb" data-t="home" onclick="go('home')"><i data-i="home"></i>Home</button>
+  <button class="nb" data-t="tasks" onclick="go('tasks')"><i data-i="tasks"></i>Tasks</button>
+  <button id="fab" onclick="ef()" aria-label="Add task"><i data-i="plus"></i><span class="lb">New task</span></button>
+  <button class="nb" data-t="set" onclick="go('set')"><i data-i="gear"></i>Settings</button>
+  <button class="nb hp" onclick="hp(0)" aria-label="Help"><i data-i="help"></i>Help</button>
+</nav>
+
+<div id="ov"></div>
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   Setup: helpers, state and storage
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+const K = 'tickd-v1';
+const ov = $('#ov');
+
+// Default app state
+const mk = () => ({
+  name: '',
+  goal: 0,
+  setup: false,
+  accent: '#14161f',
+  mode: 'system',
+  view: 'list',
+  avatar: '',
+  tags: ['Work', 'Personal', 'Study', 'Health'],
+  tasks: []
+});
+
+// Load saved state, falling back to defaults
+let S = (() => {
+  try {
+    return { ...mk(), ...JSON.parse(localStorage.getItem(K) || '{}') };
+  } catch (e) {
+    return mk();
+  }
+})();
+
+const save = () => {
+  try {
+    localStorage.setItem(K, JSON.stringify(S));
+  } catch (e) {}
+};
+
+
+/* =========================================================
+   Icons
+   ========================================================= */
+
+const IC = {
+  home: '<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z"/>',
+  tasks: '<rect x="4" y="4" width="16" height="16" rx="5"/><path d="m8.6 12.2 2.4 2.4 4.4-4.8"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  help: '<circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.6a2.4 2.4 0 1 1 3.4 2.2c-.7.4-1.1.9-1.1 1.7M12 16.6v.1"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  list: '<path d="M5 7h14M5 12h14M5 17h14"/>',
+  grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/>',
+  gear: '<g transform="translate(1.2 1.2) scale(.9)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></g>'
+};
+
+Object.assign(IC, {
+  prev: '<path d="m14.5 6-6 6 6 6"/>',
+  next: '<path d="m9.5 6 6 6-6 6"/>',
+  close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  check: '<path d="m5.5 12.5 4.3 4.3 8.7-9.3"/>',
+  edit: '<path d="M11 5H7a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3v-4"/><path d="M17.5 4.5a1.8 1.8 0 0 1 2.5 2.5L12 15l-3.5 1 1-3.5z"/>'
+});
+
+const ic = (n, s = 22) =>
+  `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+
+// Migrate the old green default accent
+if (S.accent == '#2f9e78') S.accent = '#14161f';
+
+
+/* =========================================================
+   UI state and small utilities
+   ========================================================= */
+
+let tab = 'home';          // current tab: home | tasks | set
+let f = 'all';             // task filter
+let q = '';                // search query
+let cal = { m: 'month', ref: new Date(), sel: null };  // calendar state
+let fm = {};               // task form state (tag, priority, id)
+
+const pad = n => String(n).padStart(2, '0');
+
+const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+
+// Escape text for safe use in HTML
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+// Due date as a Date object, or null
+const due = t => t.date ? new Date(t.date + 'T' + (t.time || '23:59')) : null;
+
+const over = t => !t.done && due(t) && due(t) < new Date();
+
+// "13:05" -> "1:05 PM"
+const fT = t => {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  return (h % 12 || 12) + ':' + m + ' ' + (h < 12 ? 'AM' : 'PM');
+};
+
+// Date label: "Today" or "5 Oct"
+const lbl = d =>
+  d == ymd(new Date())
+    ? 'Today'
+    : new Date(d + 'T00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+
+// "Overdue" or "3d overdue"
+const odT = t => {
+  const n = Math.floor((Date.now() - due(t)) / 864e5);
+  return n < 1 ? 'Overdue' : n + 'd overdue';
+};
+
+const toast = m => {
+  const e = $('#toast');
+  e.textContent = m;
+  e.style.display = 'block';
+  clearTimeout(toast.i);
+  toast.i = setTimeout(() => e.style.display = 'none', 2200);
+};
+
+
+/* =========================================================
+   Character counter for the name field
+   ========================================================= */
+
+function cnt(el) {
+  const c = $('#nc');
+  c.textContent = el.value.length + '/' + el.maxLength;
+  c.classList.toggle('full', el.value.length >= el.maxLength);
+}
+
+
+/* =========================================================
+   Theme
+   ========================================================= */
+
+function theme() {
+  const dark = S.mode == 'dark' ||
+    (S.mode == 'system' && matchMedia('(prefers-color-scheme:dark)').matches);
+  const root = document.documentElement;
+
+  // Perceived brightness of a hex colour, 0 to 1
+  const L = c => {
+    const n = parseInt(c.slice(1), 16);
+    return (.299 * (n >> 16) + .587 * (n >> 8 & 255) + .114 * (n & 255)) / 255;
+  };
+
+  let a = S.accent;
+  if (dark && L(a) < .3) a = '#f2f3f5';   // keep dark accents visible in dark mode
+
+  root.dataset.t = dark ? 'dark' : 'light';
+  root.style.setProperty('--raw', S.accent);
+  root.style.setProperty('--ac', a);
+  root.style.setProperty('--on', L(a) > .62 ? '#111' : '#fff');
+}
+
+
+/* =========================================================
+   Bottom sheets and navigation
+   ========================================================= */
+
+const sheet = h => {
+  ov.innerHTML = '<div class="sh">' + h + '</div>';
+  ov.classList.add('on');
+};
+
+const cl = () => ov.classList.remove('on');
+
+ov.onclick = e => {
+  if (e.target == ov) cl();
+};
+
+document.onkeydown = e => {
+  if (e.key == 'Escape') cl();
+};
+
+function go(t) {
+  tab = t;
+  render();
+  scrollTo(0, 0);
+}
+
+// Update the clock on the home screen
+function tick() {
+  const e = $('#clk');
+  if (!e) return;
+  const n = new Date();
+  e.textContent =
+    n.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) +
+    ', ' +
+    n.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
+setInterval(tick, 15000);
+
+function render() {
+  theme();
+  document.querySelectorAll('.nb').forEach(b => b.classList.toggle('on', b.dataset.t == tab));
+  $('#main').innerHTML = '<div class="w">' + ({ home: H, tasks: T, set: G })[tab]() + '</div>';
+  tick();
+}
+
+
+/* =========================================================
+   Task card and completion toggle
+   ========================================================= */
+
+const card = t => {
+  const when = t.date
+    ? `<div class="tmr">${lbl(t.date)}${t.time ? ', ' + fT(t.time) : ''}</div>`
+    : '';
+
+  const desc = t.desc ? `<div class="ds">${esc(t.desc)}</div>` : '';
+
+  // Kept on one line inside .mt so the :empty rule still works
+  const meta =
+    (t.tag ? `<span class="tg">${esc(t.tag)}</span>` : '') +
+    (t.pri == 'High' ? '<span class="tg hi">High</span>' : '') +
+    (over(t) ? `<span class="od">${odT(t)}</span>` : '');
+
+  return `<div class="tk${t.done ? ' dn' : ''}" tabindex="0" role="button" onclick="vw('${t.id}')" onkeydown="if(event.key=='Enter')vw('${t.id}')">
+    <div class="tb">
+      ${when}
+      <div class="tt ${t.done ? 'dn' : ''}">${esc(t.title)}</div>
+      ${desc}
+      <div class="mt">${meta}</div>
+    </div>
+    <button class="cb ${t.done ? 'on' : ''}" aria-label="Toggle done" onclick="event.stopPropagation();tg('${t.id}')">${t.done ? ic('check', 20) : ''}</button>
+  </div>`;
+};
+
+// Sort: pending first, then by due date (undated last)
+const srt = a => a.sort((a, b) => a.done - b.done || (due(a) || 9e15) - (due(b) || 9e15));
+
+function tg(id) {
+  const t = S.tasks.find(x => x.id == id);
+  t.done = !t.done;
+  t.doneAt = t.done ? Date.now() : null;
+  save();
+  render();
+}
+
+
+/* =========================================================
+   HOME tab
+   ========================================================= */
+
+function H() {
+  const n = S.tasks;
+  const dn = n.filter(t => t.done).length;
+  const pe = n.length - dn;
+  const ov = n.filter(over).length;
+  const td = ymd(new Date());
+  const tdn = n.filter(t => t.done && t.doneAt && ymd(new Date(t.doneAt)) == td).length;
+
+  const av = S.avatar
+    ? `<img class="av" src="${S.avatar}" alt="">`
+    : `<div class="av">${esc((S.name || 'T')[0].toUpperCase())}</div>`;
+
+  const sub = !n.length
+    ? "Add your first task when you're ready."
+    : pe
+      ? `${pe} task${pe > 1 ? 's' : ''} still to go.`
+      : 'All clear. Nice work.';
+
+  // Shrink the greeting as the name gets longer
+  const gr = 'Hey ' + (S.name || 'there') + '!';
+  const fs = gr.length <= 12 ? 34 : gr.length <= 15 ? 29 : gr.length <= 18 ? 25 : 22;
+
+  let h = `<div class="hd">
+    <div style="min-width:0">
+      <p class="mu" id="clk" style="font-size:14px"></p>
+      <h1 style="font-size:${fs}px">${esc(gr)}</h1>
+      <p class="mu">${S.setup ? sub : 'Set up Tickd to make it yours.'}</p>
+    </div>
+    ${av}
+  </div>`;
+
+  // First-run setup card
+  if (!S.setup) {
+    return h + `<div class="card">
+      <h3>Let's set you up</h3>
+      <p class="mu">Add your name and a daily goal. You can change both later in Settings.</p>
+      <br>
+      <label for="sn" class="lc">Your name <span class="cnt" id="nc">0/16</span></label>
+      <input id="sn" class="in" placeholder="e.g. Dubem" maxlength="16" oninput="cnt(this)">
+      <label for="sg">Tasks to finish each day</label>
+      <input id="sg" class="in" type="number" min="1" max="50" placeholder="e.g. 3">
+      <button class="bt" onclick="setup()">Save and start</button>
+    </div>`;
+  }
+
+  // Stat tiles
+  h += `<div class="g2">
+    <div class="st"><b>${n.length}</b><span>Total</span></div>
+    <div class="st"><b>${dn}</b><span>Completed</span></div>
+    <div class="st"><b>${pe}</b><span>Pending</span></div>
+    <div class="st"><b style="${ov ? 'color:var(--rd)' : ''}">${ov}</b><span>Overdue</span></div>
+  </div>`;
+
+  // Daily goal ring, or a prompt to set a goal
+  if (S.goal) {
+    const pct = Math.min(100, Math.round(tdn / S.goal * 100));
+    h += `<div class="hero">
+      <div class="ring" style="--p:${pct}"><b>${pct}%</b></div>
+      <div>
+        <small>Today's goal</small>
+        <h2>${tdn} of ${S.goal} done</h2>
+        <p>${tdn >= S.goal ? 'Goal hit. Nice work.' : (S.goal - tdn) + ' more to reach it.'}</p>
+      </div>
+    </div>`;
+  } else {
+    h += `<div class="card">
+      <h3>No daily goal yet</h3>
+      <p class="mu">Set one in Settings to track your progress here.</p>
+    </div>`;
+  }
+
+  // Next three pending tasks
+  const up = srt(n.filter(t => !t.done)).slice(0, 3);
+
+  h += `<div class="hd">
+    <h3>Up next</h3>
+    <button class="ch" onclick="go('tasks')">All tasks</button>
+  </div>`;
+
+  h += up.length
+    ? `<div class="lst">${up.map(card).join('')}</div>`
+    : `<div class="card emp">Nothing waiting.<br><br><button class="bt sm" onclick="ef()">Add a task</button></div>`;
+
+  return h;
+}
+
+function setup() {
+  S.name = $('#sn').value.trim();
+  S.goal = Math.max(0, Math.floor(+$('#sg').value) || 0);
+  S.setup = true;
+  save();
+  render();
+}
+
+
+/* =========================================================
+   TASKS tab: calendar
+   ========================================================= */
+
+function CAL() {
+  const r = cal.ref;
+  const ds = new Set(S.tasks.map(t => t.date));   // days that have tasks
+  const td = ymd(new Date());
+  let s, n, ti;                                   // start date, cell count, title
+  const sd = (d, o) => d.toLocaleDateString(undefined, o);
+
+  if (cal.m == 'month') {
+    const f = new Date(r.getFullYear(), r.getMonth(), 1);
+    const dm = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+    s = new Date(f);
+    s.setDate(1 - f.getDay());
+    n = Math.ceil((f.getDay() + dm) / 7) * 7;
+    ti = sd(r, { month: 'long', year: 'numeric' });
+  } else {
+    s = new Date(r);
+    s.setDate(r.getDate() - r.getDay());
+    n = 7;
+    const e = new Date(s);
+    e.setDate(s.getDate() + 6);
+    ti = sd(s, { day: 'numeric', month: 'short' }) + ' to ' + sd(e, { day: 'numeric', month: 'short' });
+  }
+
+  // Weekday headers, then one button per day
+  let c = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<small>${x}</small>`).join('');
+
+  for (let i = 0; i < n; i++) {
+    const d = new Date(s);
+    d.setDate(s.getDate() + i);
+    const y = ymd(d);
+
+    const cls = 'd' +
+      (cal.m == 'month' && d.getMonth() != r.getMonth() ? ' o' : '') +
+      (y == cal.sel ? ' s' : '') +
+      (y == td ? ' t' : '') +
+      (ds.has(y) ? ' k' : '');
+
+    c += `<button class="${cls}" onclick="pd('${y}')">${d.getDate()}</button>`;
+  }
+
+  const modes = [['month', 'Month'], ['week', 'Week']]
+    .map(a => `<button class="ch ${cal.m == a[0] ? 'on' : ''}" onclick="cal.m='${a[0]}';render()">${a[1]}</button>`)
+    .join('');
+
+  return `<div class="card dk">
+    <div class="ct">
+      <button class="ib" onclick="sh(-1)" aria-label="Previous">${ic('prev', 20)}</button>
+      <b>${ti}</b>
+      <button class="ib" onclick="sh(1)" aria-label="Next">${ic('next', 20)}</button>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      ${modes}
+      <button class="ch" onclick="cal.ref=new Date();cal.sel=ymd(new Date());render()">Today</button>
+    </div>
+    <div class="cal">${c}</div>
+  </div>`;
+}
+
+// Move the calendar forward or back by one month or week
+const sh = n => {
+  const r = cal.ref;
+  cal.m == 'month' ? r.setMonth(r.getMonth() + n, 1) : r.setDate(r.getDate() + 7 * n);
+  render();
+};
+
+// Pick a day (tap again to clear)
+const pd = y => {
+  cal.sel = cal.sel == y ? null : y;
+  render();
+};
+
+
+/* =========================================================
+   TASKS tab: list and page
+   ========================================================= */
+
+function LST() {
+  const L = srt(S.tasks.filter(t =>
+    (!cal.sel || t.date == cal.sel) &&
+    (!q || (t.title + ' ' + t.desc).toLowerCase().includes(q)) &&
+    (
+      f == 'all' ||
+      (f == 'pending' && !t.done) ||
+      (f == 'done' && t.done) ||
+      (f == 'over' && over(t)) ||
+      (f.startsWith('g:') && t.tag == f.slice(2))
+    )
+  ));
+
+  return L.length
+    ? L.map(card).join('')
+    : `<div class="emp">${S.tasks.length ? 'Nothing matches this filter.' : 'No tasks yet. Tap + to add your first one.'}</div>`;
+}
+
+function T() {
+  const fl = [
+    ['all', 'All'],
+    ['pending', 'Pending'],
+    ['done', 'Completed'],
+    ['over', 'Overdue'],
+    ...S.tags.map(x => ['g:' + x, x])
+  ];
+
+  const selBar = cal.sel
+    ? `<div class="bar">
+        <b>${new Date(cal.sel + 'T00:00').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</b>
+        <span><button class="bt sm" onclick="ef('','${cal.sel}')">Add task</button> <button class="ch" onclick="pd('${cal.sel}')">Clear</button></span>
+      </div>`
+    : '';
+
+  const chips = fl
+    .map(a => `<button class="ch ${f == a[0] ? 'on' : ''}" data-f="${esc(a[0])}" onclick="f=this.dataset.f;render()">${esc(a[1])}</button>`)
+    .join('');
+
+  return `<div class="hd">
+    <h1>Tasks</h1>
+    <button class="ib" onclick="S.view=S.view=='grid'?'list':'grid';save();render()" aria-label="Switch grid or list view">${ic(S.view == 'grid' ? 'list' : 'grid', 20)}</button>
+  </div>
+  ${CAL()}
+  ${selBar}
+  <div class="sb">
+    ${ic('search', 20)}
+    <input type="search" placeholder="Search tasks" value="${esc(q)}" oninput="q=this.value.toLowerCase();$('#lst').innerHTML=LST()" aria-label="Search tasks">
+  </div>
+  <div class="row">${chips}</div>
+  <div id="lst" class="lst ${S.view == 'grid' ? 'grid' : ''}">${LST()}</div>`;
+}
+
+
+/* =========================================================
+   Sheets: view, add/edit and delete a task
+   ========================================================= */
+
+// View a task
+function vw(id) {
+  const t = S.tasks.find(x => x.id == id);
+  if (!t) return;
+
+  const when = t.date
+    ? `<span class="tm">${lbl(t.date)}${t.time ? ', ' + fT(t.time) : ''}</span>`
+    : '<span class="tg">No date</span>';
+
+  const status = t.done ? 'Completed' : over(t) ? odT(t) : 'Pending';
+
+  sheet(`<div class="sr">
+    <button class="ib" onclick="cl()" aria-label="Close">${ic('close', 20)}</button>
+    <button class="ib" onclick="ef('${id}')" aria-label="Edit">${ic('edit', 20)}</button>
+  </div>
+  <div style="text-align:center">
+    ${when}
+    <h2>${esc(t.title)}</h2>
+    <p class="${over(t) ? 'od' : 'mu'}">${status}${t.tag ? ' · ' + esc(t.tag) : ''} · ${t.pri} priority</p>
+  </div>
+  <p style="margin:16px 0;white-space:pre-wrap">${t.desc ? esc(t.desc) : '<span class="mu">No description.</span>'}</p>
+  <button class="bt" onclick="tg('${id}');cl()">${t.done ? 'Mark as pending' : 'Mark as done'}</button>`);
+}
+
+// Tag chips and priority chips inside the task form
+const tc = () => S.tags.length
+  ? S.tags.map((x, i) => `<button class="ch ${fm.tag == x ? 'on' : ''}" onclick="pt(${i})">${esc(x)}</button>`).join('')
+  : '<span class="mu">Add tags in Settings.</span>';
+
+const pc = () => ['Low', 'Medium', 'High']
+  .map(x => `<button class="ch ${fm.pri == x ? 'on' : ''}" onclick="fm.pri='${x}';$('#fpr').innerHTML=pc()">${x}</button>`)
+  .join('');
+
+// Toggle a tag in the form
+const pt = i => {
+  fm.tag = fm.tag == S.tags[i] ? '' : S.tags[i];
+  $('#ftg').innerHTML = tc();
+};
+
+// Add or edit a task
+function ef(id, date) {
+  const t = S.tasks.find(x => x.id == id) || {
+    title: '',
+    desc: '',
+    date: date || ymd(cal.sel ? new Date(cal.sel + 'T00:00') : new Date()),
+    time: '',
+    tag: '',
+    pri: 'Medium'
+  };
+
+  fm = { id: id || '', tag: t.tag, pri: t.pri };
+
+  sheet(`<div class="sr">
+    <button class="ib" onclick="cl()" aria-label="Close">${ic('close', 20)}</button>
+    <h3 style="align-self:center">${id ? 'Edit task' : 'New task'}</h3>
+    <span style="width:40px"></span>
+  </div>
+  <input id="ft" class="in" placeholder="Task title" maxlength="120" value="${esc(t.title)}" aria-label="Task title">
+  <textarea id="fd" class="in" rows="3" placeholder="Description (optional)">${esc(t.desc)}</textarea>
+  <div class="two">
+    <div>
+      <label for="fa">Date</label>
+      <input id="fa" type="date" class="in" value="${t.date}">
+    </div>
+    <div>
+      <label for="fi">Time</label>
+      <input id="fi" type="time" class="in" value="${t.time}">
+    </div>
+  </div>
+  <label>Tag</label>
+  <div class="wrap" id="ftg">${tc()}</div>
+  <label>Priority</label>
+  <div class="wrap" id="fpr">${pc()}</div>
+  <p id="er" class="od"></p>
+  <button class="bt" onclick="sv()">${id ? 'Save changes' : 'Add task'}</button>
+  ${id ? `<button class="bt d" onclick="dl('${id}')">Delete task</button>` : ''}`);
+
+  setTimeout(() => {
+    if (!id) $('#ft').focus();
+  }, 50);
+}
+
+// Save the task form
+function sv() {
+  const ti = $('#ft').value.trim();
+
+  if (!ti) {
+    $('#er').textContent = 'Add a title to save this task.';
+    return;
+  }
+
+  const o = {
+    title: ti,
+    desc: $('#fd').value.trim(),
+    date: $('#fa').value,
+    time: $('#fi').value,
+    tag: fm.tag,
+    pri: fm.pri
+  };
+
+  if (fm.id) {
+    Object.assign(S.tasks.find(x => x.id == fm.id), o);
+  } else {
+    S.tasks.push({ id: uid(), done: false, doneAt: null, ...o });
+  }
+
+  save();
+  cl();
+  render();
+}
+
+// Delete a task (after confirming)
+const dl = id => ask('Delete this task?', () => {
+  S.tasks = S.tasks.filter(x => x.id != id);
+  save();
+  render();
+});
+
+// Generic confirmation sheet
+function ask(m, cb, l = 'Delete') {
+  sheet(`<h3>${m}</h3>
+  <p class="mu">This can't be undone.</p>
+  <br>
+  <button class="bt" style="background:var(--rd)" id="yes">${l}</button>
+  <button class="bt g" onclick="cl()">Cancel</button>`);
+
+  $('#yes').onclick = () => {
+    cl();
+    cb();
+  };
+}
+
+
+/* =========================================================
+   Help walkthrough
+   ========================================================= */
+
+const HS = [
+  ['Home', 'Your progress and daily goal live here. Set your name and goal to make it yours.'],
+  ['Add tasks', 'Tap + to add a task. Tap any task to view it, and tick the box to complete it.'],
+  ['Calendar', 'Browse by month or week. Tap a day to see its tasks or add one for it.'],
+  ['Find things', 'Filter by status or tag, search by word, and switch between grid and list.'],
+  ['Settings', 'Change the theme and colour, manage tags, and export or import a backup.']
+];
+
+function hp(i) {
+  const last = i == HS.length - 1;
+
+  sheet(`<div class="sr">
+    <button class="ib" onclick="cl()" aria-label="Close">✕</button>
+    <span class="mu">${i + 1} of ${HS.length}</span>
+  </div>
+  <h2>${HS[i][0]}</h2>
+  <p style="min-height:70px">${HS[i][1]}</p>
+  <div class="two">
+    ${i ? `<button class="bt g" onclick="hp(${i - 1})">Back</button>` : '<span></span>'}
+    <button class="bt" onclick="${last ? 'cl()' : `hp(${i + 1})`}">${last ? 'Done' : 'Next'}</button>
+  </div>`);
+}
+
+
+/* =========================================================
+   SETTINGS tab
+   ========================================================= */
+
+function G() {
+  // Row of option chips that set S[k]
+  const seg = (k, o) => `<div class="wrap">${
+    o.map(a => `<button class="ch ${S[k] == a[0] ? 'on' : ''}" onclick="S.${k}='${a[0]}';save();render()">${a[1]}</button>`).join('')
+  }</div>`;
+
+  const avatar = S.avatar
+    ? `<img class="av" src="${S.avatar}" alt="">`
+    : `<div class="av">${esc((S.name || 'T')[0].toUpperCase())}</div>`;
+
+  const removePhoto = S.avatar
+    ? ' <button class="ch" onclick="S.avatar=\'\';save();render()">Remove</button>'
+    : '';
+
+  const swatches = ['#14161f', '#16a34a', '#5b4bdb', '#2563eb', '#e11d63', '#d97706']
+    .map(c => `<button class="sw" style="background:${c}" onclick="S.accent='${c}';save();render()" aria-label="Accent ${c}"></button>`)
+    .join('');
+
+  const tagChips = S.tags
+    .map((x, i) => `<button class="ch on" onclick="S.tags.splice(${i},1);save();render()" aria-label="Remove tag ${esc(x)}">${esc(x)} ${ic('close', 14)}</button>`)
+    .join('') || '<span class="mu">No tags yet.</span>';
+
+  return `<h1>Settings</h1>
+
+  <div class="card">
+    <h3>Profile</h3>
+    <div class="hd" style="justify-content:flex-start;margin:10px 0">
+      ${avatar}
+      <div><label class="ch" style="display:inline-block;cursor:pointer">Change photo<input type="file" accept="image/*" hidden onchange="pick(this)"></label>${removePhoto}</div>
+    </div>
+    <label for="sn" class="lc">Name <span class="cnt${S.name.length >= 16 ? ' full' : ''}" id="nc">${S.name.length}/16</span></label>
+    <input id="sn" class="in" maxlength="16" value="${esc(S.name)}" oninput="cnt(this)" onchange="S.name=this.value.trim();S.setup=true;save();toast('Saved')">
+    <label for="sg">Daily goal (tasks per day)</label>
+    <input id="sg" class="in" type="number" min="0" max="50" style="margin-bottom:0" value="${S.goal || ''}" onchange="S.goal=Math.max(0,Math.floor(+this.value)||0);S.setup=true;save();toast('Saved')">
+  </div>
+
+  <div class="card">
+    <h3>Appearance</h3>
+    <label style="margin-top:10px">Theme</label>
+    ${seg('mode', [['light', 'Light'], ['dark', 'Dark'], ['system', 'System']])}
+    <label>Accent colour</label>
+    <div class="wrap">${swatches}</div>
+    <label for="ac">Custom colour</label>
+    <input id="ac" type="color" value="${S.accent}" style="width:100%;height:46px;border:1px solid var(--bd);border-radius:14px;background:var(--cd);margin-top:6px" oninput="S.accent=this.value;theme()" onchange="save()">
+  </div>
+
+  <div class="card">
+    <h3>Tasks</h3>
+    <label style="margin-top:10px">Default view</label>
+    ${seg('view', [['list', 'List'], ['grid', 'Grid']])}
+    <label>Tags</label>
+    <div class="wrap">${tagChips}</div>
+    <div class="two" style="grid-template-columns:1fr auto">
+      <input id="nt" class="in" maxlength="20" placeholder="New tag" style="margin:0">
+      <button class="bt sm" onclick="at()">Add</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Your data</h3>
+    <p class="mu">Everything is saved on this device. Export a backup to keep it safe.</p>
+    <br>
+    <button class="bt g" onclick="ex()">Export as JSON</button>
+    <label class="bt g" style="display:block;text-align:center;cursor:pointer;margin-top:8px;color:var(--ac)">Import from JSON<input type="file" accept=".json,application/json" hidden onchange="imp(this)"></label>
+    <button class="bt d" onclick="ask('Reset everything?',()=>{S=mk();save();tab='home';render()},'Reset')">Reset all progress</button>
+  </div>`;
+}
+
+// Add a new tag
+function at() {
+  const v = $('#nt').value.trim();
+  if (v && !S.tags.includes(v)) {
+    S.tags.push(v);
+    save();
+    render();
+  }
+}
+
+
+/* =========================================================
+   Export and import
+   ========================================================= */
+
+async function ex() {
+  const data = JSON.stringify(S, null, 2);
+  const name = 'tickd-backup-' + ymd(new Date()) + '.json';
+
+  // Use the host's download capability when available
+  try {
+    const d = window.claude && await claude.use('downloads');
+    if (d) {
+      await d.save({ filename: name, data });
+      return;
+    }
+  } catch (e) {
+    if (e && e.code == 'declined') return;
+  }
+
+  // Fallback: normal browser download
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+  a.download = name;
+  a.click();
+}
+
+function imp(inp) {
+  const fl = inp.files[0];
+  inp.value = '';
+  if (!fl) return;
+
+  const r = new FileReader();
+
+  r.onload = () => {
+    let d;
+
+    // Make sure the file looks like a Tickd backup
+    try {
+      d = JSON.parse(r.result);
+      if (!d || !Array.isArray(d.tasks)) throw 0;
+    } catch (e) {
+      toast('That file is not a Tickd backup.');
+      return;
+    }
+
+    ask('Replace your current data with this file?', () => {
+      const b = mk();
+
+      S = {
+        ...b,
+        ...d,
+        accent: /^#[0-9a-f]{6}$/i.test(d.accent) ? d.accent : b.accent,
+        mode: ['light', 'dark', 'system'].includes(d.mode) ? d.mode : 'system',
+        view: d.view == 'grid' ? 'grid' : 'list',
+        tags: Array.isArray(d.tags) ? d.tags.map(String) : b.tags,
+        tasks: d.tasks
+          .filter(t => t && typeof t.title == 'string')
+          .map(t => ({
+            id: String(t.id || uid()),
+            title: t.title,
+            desc: String(t.desc || ''),
+            date: t.date || '',
+            time: t.time || '',
+            tag: t.tag || '',
+            pri: ['Low', 'Medium', 'High'].includes(t.pri) ? t.pri : 'Medium',
+            done: !!t.done,
+            doneAt: t.doneAt || null
+          }))
+      };
+
+      save();
+      render();
+      toast('Backup loaded');
+    }, 'Replace');
+  };
+
+  r.readAsText(fl);
+}
+
+
+/* =========================================================
+   Profile photo: pick and crop
+   ========================================================= */
+
+function pick(inp) {
+  const fl = inp.files[0];
+  inp.value = '';
+  if (!fl) return;
+
+  const r = new FileReader();
+
+  r.onload = () => {
+    const im = new Image();
+    im.onload = () => crop(im);
+    im.onerror = () => toast('Could not read that image.');
+    im.src = r.result;
+  };
+
+  r.readAsDataURL(fl);
+}
+
+function crop(im) {
+  const W = 260;                                   // canvas size in px
+  const base = W / Math.min(im.width, im.height);  // scale that fills the square
+  let z = 1;                                       // zoom
+  let ox = (W - im.width * base) / 2;              // image offset x
+  let oy = (W - im.height * base) / 2;             // image offset y
+  let p = null;                                    // last pointer position while dragging
+
+  sheet(`<h3>Crop photo</h3>
+  <p class="mu">Drag to move, use the slider to zoom. It saves as a square.</p>
+  <canvas id="cv" width="260" height="260" style="width:260px;height:260px;display:block;margin:14px auto;border-radius:18px;touch-action:none;background:var(--bd)"></canvas>
+  <input id="zm" type="range" min="1" max="3" step=".01" value="1" style="width:100%;accent-color:var(--ac)" aria-label="Zoom">
+  <button class="bt" id="cu">Use photo</button>
+  <button class="bt g" onclick="cl()">Cancel</button>`);
+
+  const c = $('#cv');
+  const x = c.getContext('2d');
+
+  // Redraw, keeping the image covering the whole square
+  const dr = () => {
+    const s = base * z;
+    const w = im.width * s;
+    const h = im.height * s;
+    ox = Math.min(0, Math.max(W - w, ox));
+    oy = Math.min(0, Math.max(W - h, oy));
+    x.clearRect(0, 0, W, W);
+    x.drawImage(im, ox, oy, w, h);
+  };
+
+  dr();
+
+  // Drag to move
+  c.onpointerdown = e => {
+    p = [e.clientX, e.clientY];
+    c.setPointerCapture(e.pointerId);
+  };
+
+  c.onpointermove = e => {
+    if (!p) return;
+    ox += e.clientX - p[0];
+    oy += e.clientY - p[1];
+    p = [e.clientX, e.clientY];
+    dr();
+  };
+
+  c.onpointerup = () => p = null;
+
+  // Zoom around the centre
+  $('#zm').oninput = e => {
+    const n = +e.target.value;
+    const m = W / 2;
+    ox = m - (m - ox) * n / z;
+    oy = m - (m - oy) * n / z;
+    z = n;
+    dr();
+  };
+
+  // Save the cropped square
+  $('#cu').onclick = () => {
+    S.avatar = c.toDataURL('image/jpeg', .85);
+    save();
+    cl();
+    render();
+  };
+}
+
+
+/* =========================================================
+   Start
+   ========================================================= */
+
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => {
+  if (S.mode == 'system') theme();
+});
+
+document.querySelectorAll('[data-i]').forEach(e => e.innerHTML = ic(e.dataset.i));
+
+render();
+</script>
+</body>
+</html>
