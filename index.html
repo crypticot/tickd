@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tickd">
-<meta name="description" content="Tickd is a simple task manager with a calendar, tags and daily goals, right in your browser. Everything is saved on your device and nothing is uploaded anywhere else.">
+<meta name="description" content="Tickd is a simple task manager with a calendar, tags and daily goals, right in your browser. Everything is saved on your device.">
 <meta name="theme-color" content="#14161F">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://crypticot.github.io/tickd/">
@@ -80,7 +80,20 @@
     outline-offset: 2px;
   }
 
-  h1 {
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  h1,
+  .pt {
     font-size: 34px;
     line-height: 1.1;
     letter-spacing: -.03em;
@@ -820,7 +833,7 @@
   "name": "Tickd",
   "alternateName": "Tickd: Simple Tasks, Calendar & Daily Goals",
   "url": "https://crypticot.github.io/tickd/",
-  "description": "Tickd is a simple task manager with a calendar, tags and daily goals, right in your browser. Everything is saved on your device and nothing is uploaded anywhere else.",
+  "description": "Tickd is a simple task manager with a calendar, tags and daily goals, right in your browser. Everything is saved on your device and never uploaded.",
   "image": "https://crypticot.github.io/tickd/tickd-og.png",
   "applicationCategory": "ProductivityApplication",
   "operatingSystem": "Any",
@@ -851,6 +864,7 @@
 
 <body>
 
+<h1 class="sr">Tickd: Simple Tasks, Calendar &amp; Daily Goals</h1>
 <main id="main"></main>
 
 <nav id="nav">
@@ -1135,7 +1149,7 @@ function H() {
   let h = `<div class="hd">
     <div style="min-width:0">
       <p class="mu" id="clk" style="font-size:14px"></p>
-      <h1 style="font-size:${fs}px">${esc(gr)}</h1>
+      <h2 class="pt" style="font-size:${fs}px">${esc(gr)}</h2>
       <p class="mu">${S.setup ? sub : 'Set up Tickd to make it yours.'}</p>
     </div>
     ${av}
@@ -1148,7 +1162,7 @@ function H() {
       <p class="mu">Add your name and a daily goal. You can change both later in Settings.</p>
       <br>
       <label for="sn" class="lc">Your name <span class="cnt" id="nc">0/16</span></label>
-      <input id="sn" class="in" placeholder="e.g. Dubem" maxlength="16" oninput="cnt(this)">
+      <input id="sn" class="in" placeholder="e.g. Lipton" maxlength="16" oninput="cnt(this)">
       <label for="sg">Tasks to finish each day</label>
       <input id="sg" class="in" type="number" min="1" max="50" placeholder="e.g. 3">
       <button class="bt" onclick="setup()">Save and start</button>
@@ -1324,7 +1338,7 @@ function T() {
     .join('');
 
   return `<div class="hd">
-    <h1>Tasks</h1>
+    <h2 class="pt">Tasks</h2>
     <button class="ib" onclick="S.view=S.view=='grid'?'list':'grid';save();render()" aria-label="Switch grid or list view">${ic(S.view == 'grid' ? 'list' : 'grid', 20)}</button>
   </div>
   ${CAL()}
@@ -1529,7 +1543,7 @@ function G() {
     .map((x, i) => `<button class="ch on" onclick="S.tags.splice(${i},1);save();render()" aria-label="Remove tag ${esc(x)}">${esc(x)} ${ic('close', 14)}</button>`)
     .join('') || '<span class="mu">No tags yet.</span>';
 
-  return `<h1>Settings</h1>
+  return `<h2 class="pt">Settings</h2>
 
   <div class="card">
     <h3>Profile</h3>
